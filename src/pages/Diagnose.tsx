@@ -2,13 +2,14 @@
 import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import ImageUploader from '@/components/diagnose/ImageUploader';
-import ResultsDisplay, { DiagnoseResult, Product } from '@/components/diagnose/ResultsDisplay';
+import ResultsDisplay, { DiagnoseResult } from '@/components/diagnose/ResultsDisplay';
 import WeatherData, { WeatherInfo } from '@/components/weather/WeatherData';
 import TestImages from '@/components/diagnose/TestImages';
 import Chatbot from '@/components/diagnose/Chatbot';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { testImageCategories } from "@/utils/testImageData";
 
 const Diagnose = () => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
