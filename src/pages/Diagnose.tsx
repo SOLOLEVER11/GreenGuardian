@@ -2,9 +2,10 @@
 import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import ImageUploader from '@/components/diagnose/ImageUploader';
-import ResultsDisplay, { DiagnoseResult } from '@/components/diagnose/ResultsDisplay';
+import ResultsDisplay, { DiagnoseResult, Product } from '@/components/diagnose/ResultsDisplay';
 import WeatherData, { WeatherInfo } from '@/components/weather/WeatherData';
 import TestImages from '@/components/diagnose/TestImages';
+import Chatbot from '@/components/diagnose/Chatbot';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -58,6 +59,11 @@ const Diagnose = () => {
       let mockResult: DiagnoseResult;
       
       if (selectedDiseaseName) {
+        // Find the matching test image category to get its products
+        const selectedCategory = testImageCategories.find(category => 
+          category.name === selectedDiseaseName
+        );
+        
         // If using a test image, match the disease name
         const diseaseParts = selectedDiseaseName.split('-').map(part => part.trim());
         const plant = diseaseParts[0] || "Unknown Plant";
@@ -68,7 +74,8 @@ const Diagnose = () => {
           confidence: 92,
           description: `This appears to be ${disease} on a ${plant} plant. This is a common disease affecting ${plant} crops worldwide.`,
           treatment: "Remove and destroy infected plant parts. Apply appropriate fungicide as a preventative measure. Ensure good air circulation by proper spacing between plants. Water at the base of plants to keep foliage dry.",
-          imageUrl: selectedImageUrl || undefined
+          imageUrl: selectedImageUrl || undefined,
+          recommendedProducts: selectedCategory?.products || []
         };
       } else {
         // Default mock result for uploaded images
@@ -77,7 +84,23 @@ const Diagnose = () => {
           confidence: 87,
           description: "Late blight is a potentially devastating disease of tomato and potato, infecting leaves, stems, and fruits. The disease spreads quickly in cool, wet weather.",
           treatment: "Remove and destroy infected plant parts. Apply copper-based fungicide as a preventative measure. Ensure good air circulation by proper spacing between plants. Water at the base of plants to keep foliage dry.",
-          imageUrl: selectedImageUrl || undefined
+          imageUrl: selectedImageUrl || undefined,
+          recommendedProducts: [
+            {
+              id: "tb-1",
+              name: "Copper Fungicide Spray",
+              description: "Preventative and curative copper-based fungicide",
+              price: 19.99,
+              imageUrl: "https://images.unsplash.com/photo-1620832951697-21e24b0792a3?w=200&auto=format&fit=crop"
+            },
+            {
+              id: "tb-2",
+              name: "Garden Disease Control",
+              description: "Systemic fungicide for tomato blights",
+              price: 29.95,
+              imageUrl: "https://images.unsplash.com/photo-1532992621581-14896083c518?w=200&auto=format&fit=crop"
+            }
+          ]
         };
       }
       
@@ -157,9 +180,13 @@ const Diagnose = () => {
           </div>
           
           <div className="lg:col-span-2">
-            <div className="sticky top-8">
+            <div className="sticky top-8 space-y-6">
               <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Weather Conditions</h2>
               <WeatherData weatherData={weatherData} isLoading={isLoadingWeather} error={weatherError} />
+              
+              <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow">
+                <Chatbot />
+              </div>
               
               <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                 <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Tips</h2>

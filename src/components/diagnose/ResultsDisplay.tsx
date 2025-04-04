@@ -1,8 +1,17 @@
 
 import React from 'react';
-import { AlertCircle, ThumbsUp, Loader2 } from 'lucide-react';
+import { AlertCircle, ThumbsUp, Loader2, ShoppingCart } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+
+export interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  imageUrl?: string;
+}
 
 export interface DiagnoseResult {
   diseaseName: string;
@@ -10,6 +19,7 @@ export interface DiagnoseResult {
   description: string;
   treatment: string;
   imageUrl?: string;
+  recommendedProducts?: Product[];
 }
 
 interface ResultsDisplayProps {
@@ -62,6 +72,12 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result, isLoading, erro
     return null;
   }
 
+  const handleBuyProduct = (product: Product) => {
+    // Here we would integrate with an e-commerce system
+    // For now, we'll just alert
+    alert(`Added ${product.name} to cart - $${product.price}`);
+  };
+
   return (
     <Card className="w-full border-forest-200 dark:border-forest-900/50 animate-fade-in">
       <CardHeader className="bg-forest-50 dark:bg-forest-900/20 border-b border-forest-100 dark:border-forest-800">
@@ -111,6 +127,41 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result, isLoading, erro
               {result.treatment}
             </p>
           </div>
+
+          {result.recommendedProducts && result.recommendedProducts.length > 0 && (
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white">Recommended Products</h3>
+              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {result.recommendedProducts.map((product) => (
+                  <div key={product.id} className="border rounded-lg p-3 flex flex-col">
+                    {product.imageUrl && (
+                      <div className="h-24 w-full mb-3 rounded overflow-hidden">
+                        <img 
+                          src={product.imageUrl} 
+                          alt={product.name} 
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <h4 className="font-medium text-sm">{product.name}</h4>
+                    <p className="text-xs text-gray-500 mt-1 mb-2 flex-grow">{product.description}</p>
+                    <div className="flex items-center justify-between mt-auto">
+                      <span className="font-semibold">${product.price.toFixed(2)}</span>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex items-center text-forest-600 border-forest-200 hover:bg-forest-50"
+                        onClick={() => handleBuyProduct(product)}
+                      >
+                        <ShoppingCart className="mr-1 h-4 w-4" />
+                        Buy Now
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {result.imageUrl && (
             <div>
