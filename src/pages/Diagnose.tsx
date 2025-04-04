@@ -4,25 +4,46 @@ import Layout from '@/components/layout/Layout';
 import ImageUploader from '@/components/diagnose/ImageUploader';
 import ResultsDisplay, { DiagnoseResult } from '@/components/diagnose/ResultsDisplay';
 import WeatherData, { WeatherInfo } from '@/components/weather/WeatherData';
+import TestImages from '@/components/diagnose/TestImages';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 
 const Diagnose = () => {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
+  const [selectedDiseaseName, setSelectedDiseaseName] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<DiagnoseResult | null>(null);
   const [weatherData, setWeatherData] = useState<WeatherInfo | null>(null);
   const [isLoadingWeather, setIsLoadingWeather] = useState(false);
   const [weatherError, setWeatherError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const handleImageSelect = (file: File) => {
     setSelectedImage(file);
+    setSelectedImageUrl(URL.createObjectURL(file));
+    setSelectedDiseaseName(null);
     setResult(null);
     setError(null);
   };
 
+  const handleTestImageSelect = (imageUrl: string, diseaseName: string) => {
+    setSelectedImageUrl(imageUrl);
+    setSelectedDiseaseName(diseaseName);
+    setSelectedImage(null);
+    setResult(null);
+    setError(null);
+    
+    toast({
+      title: "Test Image Selected",
+      description: `Using ${diseaseName} image for testing`,
+    });
+  };
+
   const analyzePlant = () => {
-    if (!selectedImage) {
+    if (!selectedImage && !selectedImageUrl) {
       setError("Please select an image first");
       return;
     }
@@ -33,14 +54,32 @@ const Diagnose = () => {
     // Mock API call for demonstration purposes
     // In a real implementation, this would be a call to your ML backend
     setTimeout(() => {
-      // Simulate a successful response
-      const mockResult: DiagnoseResult = {
-        diseaseName: "Tomato Late Blight",
-        confidence: 92,
-        description: "Late blight is a potentially devastating disease of tomato and potato, infecting leaves, stems, and fruits. The disease spreads quickly in cool, wet weather.",
-        treatment: "Remove and destroy infected plant parts. Apply copper-based fungicide as a preventative measure. Ensure good air circulation by proper spacing between plants. Water at the base of plants to keep foliage dry.",
-        imageUrl: "https://placeholder-image-url.com/late-blight.jpg"
-      };
+      // Determine disease based on selected test image or provide mock result
+      let mockResult: DiagnoseResult;
+      
+      if (selectedDiseaseName) {
+        // If using a test image, match the disease name
+        const diseaseParts = selectedDiseaseName.split('-').map(part => part.trim());
+        const plant = diseaseParts[0] || "Unknown Plant";
+        const disease = diseaseParts.length > 1 ? diseaseParts.slice(1).join(' ') : selectedDiseaseName;
+        
+        mockResult = {
+          diseaseName: disease,
+          confidence: 92,
+          description: `This appears to be ${disease} on a ${plant} plant. This is a common disease affecting ${plant} crops worldwide.`,
+          treatment: "Remove and destroy infected plant parts. Apply appropriate fungicide as a preventative measure. Ensure good air circulation by proper spacing between plants. Water at the base of plants to keep foliage dry.",
+          imageUrl: selectedImageUrl || undefined
+        };
+      } else {
+        // Default mock result for uploaded images
+        mockResult = {
+          diseaseName: "Tomato Late Blight",
+          confidence: 87,
+          description: "Late blight is a potentially devastating disease of tomato and potato, infecting leaves, stems, and fruits. The disease spreads quickly in cool, wet weather.",
+          treatment: "Remove and destroy infected plant parts. Apply copper-based fungicide as a preventative measure. Ensure good air circulation by proper spacing between plants. Water at the base of plants to keep foliage dry.",
+          imageUrl: selectedImageUrl || undefined
+        };
+      }
       
       setResult(mockResult);
       setIsAnalyzing(false);
@@ -77,20 +116,31 @@ const Diagnose = () => {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Plant Disease Diagnosis</h1>
           <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">
-            Upload a photo of your plant to identify diseases and get treatment recommendations
+            Upload a photo of your plant or select a test image to identify diseases and get treatment recommendations
           </p>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
           <div className="lg:col-span-3 space-y-6">
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Upload Plant Image</h2>
-              <ImageUploader onImageSelect={handleImageSelect} />
+              <Tabs defaultValue="upload" className="w-full">
+                <TabsList className="grid grid-cols-2 mb-4">
+                  <TabsTrigger value="upload">Upload Image</TabsTrigger>
+                  <TabsTrigger value="sample">Sample Images</TabsTrigger>
+                </TabsList>
+                <TabsContent value="upload">
+                  <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Upload Plant Image</h2>
+                  <ImageUploader onImageSelect={handleImageSelect} />
+                </TabsContent>
+                <TabsContent value="sample">
+                  <TestImages onSelectTestImage={handleTestImageSelect} />
+                </TabsContent>
+              </Tabs>
               
               <div className="mt-6 text-center">
                 <Button 
                   onClick={analyzePlant}
-                  disabled={!selectedImage || isAnalyzing}
+                  disabled={(!selectedImage && !selectedImageUrl) || isAnalyzing}
                   className="w-full sm:w-auto"
                 >
                   {isAnalyzing ? 'Analyzing...' : 'Analyze Plant'}
