@@ -67,6 +67,26 @@ const translations: Translations = {
     en: 'Tips',
     hi: 'सुझाव'
   },
+  'diagnose.tips.clear': {
+    en: 'Use clear, well-lit images for best results',
+    hi: 'सर्वोत्तम परिणामों के लिए स्पष्ट, अच्छी तरह से प्रकाशित छवियों का उपयोग करें'
+  },
+  'diagnose.tips.focus': {
+    en: 'Focus on the affected area of the plant',
+    hi: 'पौधे के प्रभावित क्षेत्र पर ध्यान केंद्रित करें'
+  },
+  'diagnose.tips.compare': {
+    en: 'Include both healthy and diseased parts for comparison',
+    hi: 'तुलना के लिए स्वस्थ और रोगग्रस्त दोनों भागों को शामिल करें'
+  },
+  'diagnose.tips.weather': {
+    en: 'Weather conditions can influence disease development',
+    hi: 'मौसम की स्थिति रोग विकास को प्रभावित कर सकती है'
+  },
+  'diagnose.tips.consult': {
+    en: 'For critical cases, consult with a plant pathologist',
+    hi: 'गंभीर मामलों के लिए, पौधे के रोगविज्ञानी से परामर्श करें'
+  },
   
   // Sample Test Images
   'test.title': {

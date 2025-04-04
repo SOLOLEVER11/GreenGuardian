@@ -196,23 +196,23 @@ const Diagnose = () => {
                 <ul className="space-y-3 text-gray-600 dark:text-gray-400 text-sm">
                   <li className="flex items-start">
                     <span className="text-forest-500 mr-2">•</span>
-                    Use clear, well-lit images for best results
+                    {t('diagnose.tips.clear')}
                   </li>
                   <li className="flex items-start">
                     <span className="text-forest-500 mr-2">•</span>
-                    Focus on the affected area of the plant
+                    {t('diagnose.tips.focus')}
                   </li>
                   <li className="flex items-start">
                     <span className="text-forest-500 mr-2">•</span>
-                    Include both healthy and diseased parts for comparison
+                    {t('diagnose.tips.compare')}
                   </li>
                   <li className="flex items-start">
                     <span className="text-forest-500 mr-2">•</span>
-                    Weather conditions can influence disease development
+                    {t('diagnose.tips.weather')}
                   </li>
                   <li className="flex items-start">
                     <span className="text-forest-500 mr-2">•</span>
-                    For critical cases, consult with a plant pathologist
+                    {t('diagnose.tips.consult')}
                   </li>
                 </ul>
               </div>
