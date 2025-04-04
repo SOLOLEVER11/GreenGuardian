@@ -3,10 +3,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Menu, X, Leaf, Sun, Moon } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import LanguageSwitcher from './LanguageSwitcher';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [isDarkMode, setIsDarkMode] = React.useState(false);
+  const { t } = useLanguage();
 
   const toggleMenu = () => setIsOpen(!isOpen);
   
@@ -32,25 +35,26 @@ const Navbar = () => {
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               <Link to="/" className="border-transparent text-gray-600 hover:border-forest-500 hover:text-forest-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                Home
+                {t('nav.home')}
               </Link>
               <Link to="/diagnose" className="border-transparent text-gray-600 hover:border-forest-500 hover:text-forest-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                Diagnose
+                {t('nav.diagnose')}
               </Link>
               <Link to="/map" className="border-transparent text-gray-600 hover:border-forest-500 hover:text-forest-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                Disease Map
+                {t('nav.map')}
               </Link>
               <Link to="/about" className="border-transparent text-gray-600 hover:border-forest-500 hover:text-forest-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                About
+                {t('nav.about')}
               </Link>
             </div>
           </div>
           <div className="flex items-center">
+            <LanguageSwitcher />
             <Button 
               variant="ghost" 
               size="icon" 
               onClick={toggleDarkMode} 
-              className="text-gray-600 dark:text-gray-300"
+              className="text-gray-600 dark:text-gray-300 ml-2"
             >
               {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </Button>
@@ -75,16 +79,16 @@ const Navbar = () => {
       <div className={`${isOpen ? 'block' : 'hidden'} sm:hidden`}>
         <div className="pt-2 pb-3 space-y-1">
           <Link to="/" className="text-gray-600 hover:bg-forest-50 hover:text-forest-700 block pl-3 pr-4 py-2 text-base font-medium" onClick={() => setIsOpen(false)}>
-            Home
+            {t('nav.home')}
           </Link>
           <Link to="/diagnose" className="text-gray-600 hover:bg-forest-50 hover:text-forest-700 block pl-3 pr-4 py-2 text-base font-medium" onClick={() => setIsOpen(false)}>
-            Diagnose
+            {t('nav.diagnose')}
           </Link>
           <Link to="/map" className="text-gray-600 hover:bg-forest-50 hover:text-forest-700 block pl-3 pr-4 py-2 text-base font-medium" onClick={() => setIsOpen(false)}>
-            Disease Map
+            {t('nav.map')}
           </Link>
           <Link to="/about" className="text-gray-600 hover:bg-forest-50 hover:text-forest-700 block pl-3 pr-4 py-2 text-base font-medium" onClick={() => setIsOpen(false)}>
-            About
+            {t('nav.about')}
           </Link>
         </div>
       </div>

@@ -10,8 +10,10 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { testImageCategories } from "@/utils/testImageData";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const Diagnose = () => {
+  const { t } = useLanguage();
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
   const [selectedDiseaseName, setSelectedDiseaseName] = useState<string | null>(null);
@@ -138,9 +140,9 @@ const Diagnose = () => {
     <Layout>
       <div className="py-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Plant Disease Diagnosis</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{t('diagnose.title')}</h1>
           <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">
-            Upload a photo of your plant or select a test image to identify diseases and get treatment recommendations
+            {t('diagnose.subtitle')}
           </p>
         </div>
         
@@ -149,11 +151,11 @@ const Diagnose = () => {
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
               <Tabs defaultValue="upload" className="w-full">
                 <TabsList className="grid grid-cols-2 mb-4">
-                  <TabsTrigger value="upload">Upload Image</TabsTrigger>
-                  <TabsTrigger value="sample">Sample Images</TabsTrigger>
+                  <TabsTrigger value="upload">{t('diagnose.upload')}</TabsTrigger>
+                  <TabsTrigger value="sample">{t('diagnose.sample')}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="upload">
-                  <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Upload Plant Image</h2>
+                  <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">{t('diagnose.upload')}</h2>
                   <ImageUploader onImageSelect={handleImageSelect} />
                 </TabsContent>
                 <TabsContent value="sample">
@@ -167,14 +169,14 @@ const Diagnose = () => {
                   disabled={(!selectedImage && !selectedImageUrl) || isAnalyzing}
                   className="w-full sm:w-auto"
                 >
-                  {isAnalyzing ? 'Analyzing...' : 'Analyze Plant'}
+                  {isAnalyzing ? t('diagnose.analyzing') : t('diagnose.analyze')}
                 </Button>
               </div>
             </div>
             
             {(result || isAnalyzing || error) && (
               <div className="mt-8">
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Analysis Results</h2>
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">{t('diagnose.results')}</h2>
                 <ResultsDisplay result={result} isLoading={isAnalyzing} error={error} />
               </div>
             )}
@@ -182,7 +184,7 @@ const Diagnose = () => {
           
           <div className="lg:col-span-2">
             <div className="sticky top-8 space-y-6">
-              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Weather Conditions</h2>
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">{t('diagnose.weather')}</h2>
               <WeatherData weatherData={weatherData} isLoading={isLoadingWeather} error={weatherError} />
               
               <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow">
@@ -190,7 +192,7 @@ const Diagnose = () => {
               </div>
               
               <div className="mt-6 bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Tips</h2>
+                <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">{t('diagnose.tips')}</h2>
                 <ul className="space-y-3 text-gray-600 dark:text-gray-400 text-sm">
                   <li className="flex items-start">
                     <span className="text-forest-500 mr-2">•</span>
