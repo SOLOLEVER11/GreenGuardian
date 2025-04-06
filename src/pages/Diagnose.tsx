@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { testImageCategories } from "@/utils/testImageData";
 import { useLanguage } from '@/contexts/LanguageContext';
+import { modelService } from '@/utils/modelService';
 
 const Diagnose = () => {
   const { t } = useLanguage();
@@ -23,6 +24,7 @@ const Diagnose = () => {
   const [weatherData, setWeatherData] = useState<WeatherInfo | null>(null);
   const [isLoadingWeather, setIsLoadingWeather] = useState(false);
   const [weatherError, setWeatherError] = useState<string | null>(null);
+  const [isModelLoading, setIsModelLoading] = useState(false);
   const { toast } = useToast();
 
   const handleImageSelect = (file: File) => {
@@ -41,76 +43,75 @@ const Diagnose = () => {
     setError(null);
     
     toast({
-      title: "Test Image Selected",
-      description: `Using ${diseaseName} image for testing`,
+      title: t('diagnose.test_image_selected'),
+      description: `${t('diagnose.using')} ${diseaseName} ${t('diagnose.for_testing')}`,
     });
   };
 
-  const analyzePlant = () => {
+  const analyzePlant = async () => {
     if (!selectedImage && !selectedImageUrl) {
-      setError("Please select an image first");
+      setError(t('diagnose.select_image_error'));
       return;
     }
 
     setIsAnalyzing(true);
     setError(null);
+    setIsModelLoading(true);
 
-    // Mock API call for demonstration purposes
-    // In a real implementation, this would be a call to your ML backend
-    setTimeout(() => {
-      // Determine disease based on selected test image or provide mock result
-      let mockResult: DiagnoseResult;
+    try {
+      let resultData: DiagnoseResult;
+      
+      // Load model first
+      await modelService.loadModel();
       
       if (selectedDiseaseName) {
-        // Find the matching test image category to get its products
+        // If using a test image, we still use the model for prediction
+        // but we know the expected disease category
         const selectedCategory = testImageCategories.find(category => 
           category.name === selectedDiseaseName
         );
         
-        // If using a test image, match the disease name
-        const diseaseParts = selectedDiseaseName.split('-').map(part => part.trim());
-        const plant = diseaseParts[0] || "Unknown Plant";
-        const disease = diseaseParts.length > 1 ? diseaseParts.slice(1).join(' ') : selectedDiseaseName;
+        // Predict using the model
+        const prediction = await modelService.predictDisease(selectedImageUrl!);
         
-        mockResult = {
-          diseaseName: disease,
-          confidence: 92,
-          description: `This appears to be ${disease} on a ${plant} plant. This is a common disease affecting ${plant} crops worldwide.`,
-          treatment: "Remove and destroy infected plant parts. Apply appropriate fungicide as a preventative measure. Ensure good air circulation by proper spacing between plants. Water at the base of plants to keep foliage dry.",
+        resultData = {
+          diseaseName: prediction.diseaseName,
+          confidence: prediction.confidence,
+          description: prediction.description,
+          treatment: prediction.treatment,
           imageUrl: selectedImageUrl || undefined,
           recommendedProducts: selectedCategory?.products || []
         };
       } else {
-        // Default mock result for uploaded images
-        mockResult = {
-          diseaseName: "Tomato Late Blight",
-          confidence: 87,
-          description: "Late blight is a potentially devastating disease of tomato and potato, infecting leaves, stems, and fruits. The disease spreads quickly in cool, wet weather.",
-          treatment: "Remove and destroy infected plant parts. Apply copper-based fungicide as a preventative measure. Ensure good air circulation by proper spacing between plants. Water at the base of plants to keep foliage dry.",
+        // For user-uploaded images
+        const prediction = await modelService.predictDisease(selectedImageUrl!);
+        
+        // Search for products that might be related to this plant/disease
+        const relatedCategory = testImageCategories.find(category => 
+          prediction.diseaseName.toLowerCase().includes(category.name.toLowerCase())
+        );
+        
+        resultData = {
+          diseaseName: prediction.diseaseName,
+          confidence: prediction.confidence,
+          description: prediction.description,
+          treatment: prediction.treatment,
           imageUrl: selectedImageUrl || undefined,
-          recommendedProducts: [
-            {
-              id: "tb-1",
-              name: "Copper Fungicide Spray",
-              description: "Preventative and curative copper-based fungicide",
-              price: 19.99,
-              imageUrl: "https://images.unsplash.com/photo-1620832951697-21e24b0792a3?w=200&auto=format&fit=crop"
-            },
-            {
-              id: "tb-2",
-              name: "Garden Disease Control",
-              description: "Systemic fungicide for tomato blights",
-              price: 29.95,
-              imageUrl: "https://images.unsplash.com/photo-1532992621581-14896083c518?w=200&auto=format&fit=crop"
-            }
-          ]
+          recommendedProducts: relatedCategory?.products || []
         };
       }
       
-      setResult(mockResult);
+      setResult(resultData);
       setIsAnalyzing(false);
       fetchWeatherData();
-    }, 2500);
+      
+    } catch (error) {
+      console.error('Error analyzing plant:', error);
+      setError(t('diagnose.analysis_error'));
+      setIsAnalyzing(false);
+    } finally {
+      setIsModelLoading(false);
+    }
   };
 
   const fetchWeatherData = () => {
@@ -169,7 +170,7 @@ const Diagnose = () => {
                   disabled={(!selectedImage && !selectedImageUrl) || isAnalyzing}
                   className="w-full sm:w-auto"
                 >
-                  {isAnalyzing ? t('diagnose.analyzing') : t('diagnose.analyze')}
+                  {isModelLoading ? t('diagnose.loading_model') : isAnalyzing ? t('diagnose.analyzing') : t('diagnose.analyze')}
                 </Button>
               </div>
             </div>

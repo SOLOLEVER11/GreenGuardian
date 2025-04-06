@@ -2,12 +2,14 @@
 import React, { useState } from 'react';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ImageUploaderProps {
   onImageSelect: (file: File) => void;
 }
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageSelect }) => {
+  const { t } = useLanguage();
   const [preview, setPreview] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -99,10 +101,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageSelect }) => {
               </div>
               <div className="space-y-2">
                 <p className="text-lg font-medium text-gray-700 dark:text-gray-300">
-                  Drag and drop your plant image here
+                  {t('diagnose.upload')}
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  or click to browse from your device
+                  {t('test.description')}
                 </p>
                 <p className="text-xs text-gray-400 dark:text-gray-500">
                   Supports: JPG, PNG, WEBP (Max size: 5MB)
@@ -110,7 +112,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageSelect }) => {
               </div>
               <Button variant="outline" className="mt-4">
                 <ImageIcon className="mr-2 h-4 w-4" />
-                Browse Image
+                {t('diagnose.upload')}
               </Button>
             </>
           )}

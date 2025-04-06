@@ -1,18 +1,21 @@
 
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-type Language = 'en' | 'hi';
-
-type Translations = {
+interface Translations {
   [key: string]: {
     en: string;
     hi: string;
   };
-};
+}
 
-// Basic translations for common UI elements
+interface LanguageContextType {
+  language: 'en' | 'hi';
+  setLanguage: (language: 'en' | 'hi') => void;
+  t: (key: string) => string;
+}
+
 const translations: Translations = {
-  // Navigation
+  // Navbar items
   'nav.home': {
     en: 'Home',
     hi: 'होम'
@@ -23,29 +26,29 @@ const translations: Translations = {
   },
   'nav.map': {
     en: 'Disease Map',
-    hi: 'रोग नक्शा'
+    hi: 'रोग मानचित्र'
   },
   'nav.about': {
-    en: 'About',
-    hi: 'परिचय'
+    en: 'About Us',
+    hi: 'हमारे बारे में'
   },
   
-  // Diagnose page
+  // Diagnose Page
   'diagnose.title': {
     en: 'Plant Disease Diagnosis',
-    hi: 'पौधे का रोग निदान'
+    hi: 'पौधों का रोग निदान'
   },
   'diagnose.subtitle': {
-    en: 'Upload a photo of your plant or select a test image to identify diseases and get treatment recommendations',
-    hi: 'अपने पौधे की तस्वीर अपलोड करें या रोगों की पहचान करने और उपचार सिफारिशें प्राप्त करने के लिए एक परीक्षण छवि का चयन करें'
+    en: 'Upload a photo of your plant and our AI will analyze it for diseases',
+    hi: 'अपने पौधे की एक तस्वीर अपलोड करें और हमारा AI इसका रोगों के लिए विश्लेषण करेगा'
   },
   'diagnose.upload': {
-    en: 'Upload Image',
-    hi: 'छवि अपलोड करें'
+    en: 'Upload Photo',
+    hi: 'फोटो अपलोड करें'
   },
   'diagnose.sample': {
     en: 'Sample Images',
-    hi: 'नमूना छवियां'
+    hi: 'नमूना चित्र'
   },
   'diagnose.analyze': {
     en: 'Analyze Plant',
@@ -53,15 +56,15 @@ const translations: Translations = {
   },
   'diagnose.analyzing': {
     en: 'Analyzing...',
-    hi: 'विश्लेषण कर रहा है...'
+    hi: 'विश्लेषण हो रहा है...'
   },
   'diagnose.results': {
-    en: 'Analysis Results',
-    hi: 'विश्लेषण परिणाम'
+    en: 'Results',
+    hi: 'परिणाम'
   },
   'diagnose.weather': {
-    en: 'Weather Conditions',
-    hi: 'मौसम की स्थिति'
+    en: 'Local Weather',
+    hi: 'स्थानीय मौसम'
   },
   'diagnose.tips': {
     en: 'Tips',
@@ -91,48 +94,53 @@ const translations: Translations = {
   // Sample Test Images
   'test.title': {
     en: 'Sample Test Images',
-    hi: 'नमूना परीक्षण छवियां'
+    hi: 'नमूना परीक्षण छवियाँ'
   },
   'test.description': {
-    en: 'Select one of these sample images to test the disease prediction functionality. These samples represent common plant diseases from the New Plant Diseases Dataset.',
-    hi: 'रोग पूर्वानुमान कार्यक्षमता का परीक्षण करने के लिए इनमें से एक नमूना छवि का चयन करें। ये नमूने नए पौधों की बीमारी डेटासेट से सामान्य पौधों की बीमारियों का प्रतिनिधित्व करते हैं।'
+    en: 'Select one of these sample images to test the disease detection system',
+    hi: 'रोग का पता लगाने वाली प्रणाली का परीक्षण करने के लिए इनमें से किसी एक नमूना छवि का चयन करें'
   },
   'test.use': {
     en: 'Use this image',
     hi: 'इस छवि का उपयोग करें'
   },
   'test.note': {
-    en: 'Note: These are placeholder images. For the full dataset, download from',
-    hi: 'नोट: ये प्लेसहोल्डर छवियां हैं। पूर्ण डेटासेट के लिए, डाउनलोड करें'
+    en: 'Image source:',
+    hi: 'छवि स्रोत:'
   },
   
-  // Chatbot
-  'chatbot.title': {
-    en: 'Farmer Assistant',
-    hi: 'किसान सहायक'
+  // New Model Related Texts
+  'diagnose.loading_model': {
+    en: 'Loading Model...',
+    hi: 'मॉडल लोड हो रहा है...'
   },
-  'chatbot.placeholder': {
-    en: 'Ask about plant diseases, treatments...',
-    hi: 'पौधों की बीमारियों, उपचार के बारे में पूछें...'
+  'diagnose.select_image_error': {
+    en: 'Please select an image first',
+    hi: 'कृपया पहले एक छवि का चयन करें'
   },
-  'chatbot.greeting': {
-    en: "Hello! I'm your plant disease assistant. How can I help you today?",
-    hi: "नमस्ते! मैं आपका पौधा रोग सहायक हूँ। आज मैं आपकी कैसे मदद कर सकता हूँ?"
+  'diagnose.analysis_error': {
+    en: 'Error analyzing the image. Please try again.',
+    hi: 'छवि का विश्लेषण करने में त्रुटि। कृपया पुनः प्रयास करें।'
+  },
+  'diagnose.test_image_selected': {
+    en: 'Test Image Selected',
+    hi: 'परीक्षण छवि चयनित'
+  },
+  'diagnose.using': {
+    en: 'Using',
+    hi: 'उपयोग कर रहा है'
+  },
+  'diagnose.for_testing': {
+    en: 'image for testing',
+    hi: 'परीक्षण के लिए छवि'
   }
 };
 
-interface LanguageContextProps {
-  language: Language;
-  setLanguage: (language: Language) => void;
-  t: (key: string) => string;
-}
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-const LanguageContext = createContext<LanguageContextProps | undefined>(undefined);
-
-export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [language, setLanguage] = useState<Language>('en');
-
-  // Translation function
+export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [language, setLanguage] = useState<'en' | 'hi'>('en');
+  
   const t = (key: string): string => {
     if (!translations[key]) {
       console.warn(`Translation key not found: ${key}`);
@@ -140,7 +148,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     }
     return translations[key][language];
   };
-
+  
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>
       {children}
@@ -148,7 +156,7 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useLanguage = (): LanguageContextProps => {
+export const useLanguage = (): LanguageContextType => {
   const context = useContext(LanguageContext);
   if (context === undefined) {
     throw new Error('useLanguage must be used within a LanguageProvider');
