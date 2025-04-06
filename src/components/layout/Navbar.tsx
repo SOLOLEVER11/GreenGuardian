@@ -43,9 +43,6 @@ const Navbar = () => {
               <Link to="/map" className="border-transparent text-gray-600 hover:border-forest-500 hover:text-forest-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                 {t('nav.map')}
               </Link>
-              <Link to="/about" className="border-transparent text-gray-600 hover:border-forest-500 hover:text-forest-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
-                {t('nav.about')}
-              </Link>
             </div>
           </div>
           <div className="flex items-center">
@@ -86,9 +83,6 @@ const Navbar = () => {
           </Link>
           <Link to="/map" className="text-gray-600 hover:bg-forest-50 hover:text-forest-700 block pl-3 pr-4 py-2 text-base font-medium" onClick={() => setIsOpen(false)}>
             {t('nav.map')}
-          </Link>
-          <Link to="/about" className="text-gray-600 hover:bg-forest-50 hover:text-forest-700 block pl-3 pr-4 py-2 text-base font-medium" onClick={() => setIsOpen(false)}>
-            {t('nav.about')}
           </Link>
         </div>
       </div>
