@@ -1,9 +1,14 @@
 
 import React from 'react';
-import { AlertCircle, ThumbsUp, Loader2, ShoppingCart } from 'lucide-react';
+import { ThumbsUp } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
+
+// Import our new components
+import LoadingState from './results/LoadingState';
+import ErrorState from './results/ErrorState';
+import DiagnosisDetails from './results/DiagnosisDetails';
+import ProductsList from './results/ProductsList';
+import ReferenceImage from './results/ReferenceImage';
 
 export interface Product {
   id: string;
@@ -30,42 +35,11 @@ interface ResultsDisplayProps {
 
 const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result, isLoading, error }) => {
   if (isLoading) {
-    return (
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="flex items-center text-gray-700 dark:text-gray-300">
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-            Analyzing your plant image...
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <p className="text-gray-600 dark:text-gray-400">Please wait while our AI analyzes your plant image.</p>
-            <Progress value={75} className="w-full" />
-            <p className="text-sm text-gray-500 dark:text-gray-500">This may take a few seconds</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
+    return <LoadingState />;
   }
 
   if (error) {
-    return (
-      <Card className="w-full border-red-200 dark:border-red-900">
-        <CardHeader>
-          <CardTitle className="flex items-center text-red-600 dark:text-red-400">
-            <AlertCircle className="mr-2 h-5 w-5" />
-            Error
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-gray-800 dark:text-gray-200">{error}</p>
-        </CardContent>
-        <CardFooter>
-          <p className="text-sm text-gray-600 dark:text-gray-400">Please try again with a different image or check your connection.</p>
-        </CardFooter>
-      </Card>
-    );
+    return <ErrorState error={error} />;
   }
 
   if (!result) {
@@ -91,89 +65,20 @@ const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ result, isLoading, erro
       </CardHeader>
       <CardContent className="pt-6">
         <div className="space-y-6">
-          <div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Detected Issue</h3>
-            <div className="mt-2 flex items-center justify-between">
-              <p className="text-lg font-semibold text-forest-600 dark:text-forest-400">
-                {result.diseaseName}
-              </p>
-              <div className="flex items-center">
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 mr-2">
-                  Confidence:
-                </span>
-                <span className={`text-sm font-semibold ${
-                  result.confidence > 80 
-                    ? 'text-green-600 dark:text-green-400' 
-                    : result.confidence > 60 
-                    ? 'text-yellow-600 dark:text-yellow-400' 
-                    : 'text-red-600 dark:text-red-400'
-                }`}>
-                  {result.confidence}%
-                </span>
-              </div>
-            </div>
-          </div>
+          <DiagnosisDetails result={result} />
           
-          <div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Description</h3>
-            <p className="mt-2 text-gray-600 dark:text-gray-300">
-              {result.description}
-            </p>
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white">Recommended Treatment</h3>
-            <p className="mt-2 text-gray-600 dark:text-gray-300">
-              {result.treatment}
-            </p>
-          </div>
-
-          {result.recommendedProducts && result.recommendedProducts.length > 0 && (
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white">Recommended Products</h3>
-              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {result.recommendedProducts.map((product) => (
-                  <div key={product.id} className="border rounded-lg p-3 flex flex-col">
-                    {product.imageUrl && (
-                      <div className="h-24 w-full mb-3 rounded overflow-hidden">
-                        <img 
-                          src={product.imageUrl} 
-                          alt={product.name} 
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                    )}
-                    <h4 className="font-medium text-sm">{product.name}</h4>
-                    <p className="text-xs text-gray-500 mt-1 mb-2 flex-grow">{product.description}</p>
-                    <div className="flex items-center justify-between mt-auto">
-                      <span className="font-semibold">${product.price.toFixed(2)}</span>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="flex items-center text-forest-600 border-forest-200 hover:bg-forest-50"
-                        onClick={() => handleBuyProduct(product)}
-                      >
-                        <ShoppingCart className="mr-1 h-4 w-4" />
-                        Buy Now
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+          {result.recommendedProducts && (
+            <ProductsList 
+              products={result.recommendedProducts} 
+              onBuyProduct={handleBuyProduct} 
+            />
           )}
 
           {result.imageUrl && (
-            <div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white">Reference Image</h3>
-              <div className="mt-2 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-                <img 
-                  src={result.imageUrl} 
-                  alt={`Reference image for ${result.diseaseName}`} 
-                  className="w-full h-auto object-contain"
-                />
-              </div>
-            </div>
+            <ReferenceImage 
+              imageUrl={result.imageUrl} 
+              diseaseName={result.diseaseName} 
+            />
           )}
         </div>
       </CardContent>
